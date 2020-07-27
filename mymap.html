@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>first-map</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.16/esri/css/main.css">
+  <script src="https://js.arcgis.com/4.16/"></script>
+  <style>
+      .mydiv{
+          height: 1000px ;
+          width: 80% auto;
+          
+      }
+  </style>
+</head>
+<body>
+<div id="viewDiv" class="mydiv" > this is my map</div>
+
+    <script>
+        let  map1;
+        let view;
+require(["esri/Map", "esri/views/SceneView","esri/widgets/BasemapToggle","esri/widgets/BasemapGallery","esri/layers/FeatureLayer","esri/widgets/ScaleBar","esri/widgets/Legend","esri/widgets/Daylight","esri/widgets/Search"],
+
+function(Map, SceneView,BasemapToggle,BasemapGallery,FeatureLayer,ScaleBar,Legend,Daylight,Search){
+  map1 = new Map({
+    basemap: "osm"
+});
+ view = new SceneView({
+    container:"viewDiv",
+    map:map1,
+    zoom:  7,
+    center:[-118.71511, 34.09042]
+});
+
+///symbols and labels
+let thileheadsymbols={
+    type: "simple",  
+    symbol:{
+        type:"picture-marker",
+  url: "https://static.arcgis.com/images/Symbols/Shapes/BlackStarLargeB.png",
+  width: "64px",
+  height: "64px"}
+};
+
+//labels
+let thileheadlabels={
+    symbol:{
+type:"text",
+color:"red",
+halocolor:"#5E8D74",
+halosize:"2px",
+font:{size:"12px",family:"Arial sans",style:"italic",weight:"normal"},
+
+
+    },labelPlacement:"above-center"
+    ,labelExpressionInfo:{expression:"$feature.TRL_NAME"}
+}
+
+//popup on click
+let thileheadpopup= {"title":"{TRL_NAME}", "content":"<b> OBJECTID  </b> {OBJECTID } <br> <b> city </b> {CITY_JUR} <br><b> STREET </b> {X_STREET} <br> <b> PARK_NAME </b> {PARK_NAME} <br> <b> LAT </b> {LAT} <br> <b> LON  </b> {LON} <br>"     
+
+
+
+}
+
+
+//layers => lines
+let trails=new FeatureLayer({
+
+url:"https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0  "
+})
+map1.add(trails)
+
+
+
+
+//layers => polygons
+let Parks_and_Open_Space =new FeatureLayer({
+
+url:"https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space/FeatureServer/0",
+})
+map1.add(Parks_and_Open_Space)
+
+
+let thilehead = new FeatureLayer({
+    url:"https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads/FeatureServer/0",renderer:thileheadsymbols,labelingInfo:thileheadlabels,outField:["TRL_NAME","OBJECTID","CITY_JUR","X_STREET","PARK_NAME","LAT","LON"],popupTemplate:thileheadpopup
+
+})
+map1.add(thilehead)
+
+
+
+
+
+///widgets
+//BasemapToggle
+let basemaptoggle = new BasemapToggle({
+    view: view, nextBasemapToggle:"street"
+})
+view.ui.add(basemaptoggle,"bottom-left")
+
+//BasemapGallery
+let basemapgallery = new BasemapGallery({
+    view:view,
+    source:{portal:{url:"https://www.arcgis.com"},useVectorBaseMaps:true}
+})
+view.ui.add(basemapgallery,"bottom-left")
+
+//scalebar
+let scalebar = new ScaleBar({
+    view:view
+})
+view.ui.add(scalebar,"bottom-right")
+
+//search
+let search = new Search({view:view})
+
+view.ui.add(search,"top-right")
+//legend
+var legend = new Legend({
+  view: view,
+  lengenInfo:{layer:Parks_and_Open_Space ,title:"this is my lengend" }
+ 
+  
+    
+  
+});
+view.ui.add(legend,"top-right")
+
+//daylight
+let daynight=new Daylight({view:view, dateOrSeason: "season"})
+
+view.ui.add(daynight,"top-left")
+
+
+
+
+
+
+
+ });
+ 
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>
